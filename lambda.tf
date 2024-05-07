@@ -1,13 +1,17 @@
 resource "aws_lambda_function" "helloworld" {
   function_name    = "typescript-sample-helloworld"
+
   s3_bucket        = aws_s3_bucket.lambda_assets.bucket
   s3_key           = data.aws_s3_object.package.key
-  role             = aws_iam_role.iam_for_lambda.arn
-  handler          = "index.handler"
+
   source_code_hash = data.aws_s3_object.package_hash.body
-  runtime          = "nodejs16.x"
+  handler          = "index.handler"
+
+  role             = aws_iam_role.iam_for_lambda.arn
+  runtime          = "nodejs20.x"
   timeout          = "10"
 }
+
 resource "aws_iam_role" "iam_for_lambda" {
   name = "role-for-sample-ts-lambda"
 
@@ -59,10 +63,7 @@ resource "null_resource" "lambda_build" {
 }
 
 resource "aws_s3_bucket" "lambda_assets" {}
-resource "aws_s3_bucket_acl" "lambda_assets" {
-  bucket = aws_s3_bucket.lambda_assets.bucket
-  acl    = "private"
-}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "lambda_assets" {
   bucket = aws_s3_bucket.lambda_assets.bucket
 
